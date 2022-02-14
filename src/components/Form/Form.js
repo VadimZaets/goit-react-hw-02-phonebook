@@ -1,51 +1,63 @@
-import { Component } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
-class Form extends Component {
-  state = {
-    name: "",
-    number: "",
+import { v4 as uuidv4 } from "uuid";
+export default function Form({ addContact, contacts }) {
+  const [name, setName] = useState("");
+  const [number, setNumber] = useState("");
+  const handleChange = (event) => {
+    const { name, value } = event.currentTarget;
+
+    switch (name) {
+      case "name":
+        setName(value);
+        break;
+      case "number":
+        setNumber(value);
+        break;
+      default:
+        return;
+    }
   };
-  handleChange = (e) => {
-    const { name, value } = e.target;
-    this.setState({
-      [name]: value,
-    });
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const newContact = {
+      id: uuidv4(),
+      name,
+      number,
+    };
+
+    if (contacts.find((contact) => contact.name === newContact.name)) {
+      reset();
+      return alert(`${newContact.name} is already in contacts`);
+    }
+    addContact(newContact);
+    reset();
   };
 
-  handleSubmit = (e) => {
-    e.preventDefault();
-    this.props.onAddContact(this.state);
-    this.setState({ name: "", number: "" });
+  const reset = () => {
+    setName("");
+    setNumber("");
   };
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit}>
-        <lable>
-          Name
-          <input
-            type="text"
-            name="name"
-            value={this.state.name}
-            onChange={this.handleChange}
-          />
-        </lable>
-        <label>
-          Number
-          <input
-            type="text"
-            name="number"
-            value={this.state.number}
-            onChange={this.handleChange}
-          />
-        </label>
-        <button type="submit">Add contact</button>
-      </form>
-    );
-  }
+  return (
+    <form onSubmit={handleSubmit}>
+      <lable>
+        Name
+        <input type="text" name="name" value={name} onChange={handleChange} />
+      </lable>
+      <label>
+        Number
+        <input
+          type="text"
+          name="number"
+          value={number}
+          onChange={handleChange}
+        />
+      </label>
+      <button type="submit">Add contact</button>
+    </form>
+  );
 }
 Form.propTypes = {
-  onAddContact: PropTypes.func,
-  name: PropTypes.string.isRequired,
-  number: PropTypes.string.isRequired,
+  name: PropTypes.string,
+  number: PropTypes.string,
 };
-export default Form;
